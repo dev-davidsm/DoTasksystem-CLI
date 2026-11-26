@@ -19,11 +19,8 @@ typedef struct TAREFA {
 void adicionarNaLista();
 void removerNaLista(int pos);
 void concluirTarefa(int id);
-void listarTarefas();
-void listarPorData(DataHora d);
-void listarPorPalavraChave();
 void carregarTarefas();
 void salvarTarefas();
 void liberarLista(); 
 int contarTarefasAtrasadas();
-void listarTarefasAtrasadas();
+TAREFA *getInicio();

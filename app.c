@@ -1,51 +1,7 @@
 #include <stdio.h>
 #include "lista.h"
-
-#ifdef _WIN32
-#include <conio.h>
-#else
-#include <termios.h>
-#include <unistd.h>
-#endif
-
-#define COR_RESET    "\033[0m"
-#define COR_VERMELHO "\033[1;31m"
-
-static void limparTela() {
-    printf("\033[2J\033[H");
-    fflush(stdout);
-}
-
-static void exibirTitulo() {
-    printf("\n=================================\n");
-    printf("     GERENCIADOR DE TAREFAS      \n");
-    printf("=================================\n");
-}
-
-static void aguardarEnter() {
-    printf("\nAperte ENTER para voltar ao menu inicial...");
-    fflush(stdout);
-#ifdef _WIN32
-    int tecla;
-    do {
-        tecla = _getch();
-    } while (tecla != '\r' && tecla != '\n');
-#else
-    struct termios antigo, novo;
-    tcgetattr(STDIN_FILENO, &antigo);
-    novo = antigo;
-    novo.c_lflag &= ~(tcflag_t)(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &novo);
-
-    int tecla;
-    do {
-        tecla = getchar();
-    } while (tecla != '\n' && tecla != '\r' && tecla != EOF);
-
-    tcsetattr(STDIN_FILENO, TCSANOW, &antigo);
-#endif
-    printf("\n");
-}
+#include "config.h"
+#include "impressao.h"
 
 static void verificarLembreteInicial() {
     int atrasadas = contarTarefasAtrasadas();
@@ -55,22 +11,9 @@ static void verificarLembreteInicial() {
         exibirTitulo();
         printf("\n%s[!] LEMBRETE: Você possui %d tarefa(s) atrasada(s):%s\n\n",
                COR_VERMELHO, atrasadas, COR_RESET);
-        listarTarefasAtrasadas();
+        listarTarefasAtrasadas(getInicio());
         aguardarEnter();
     }
-}
-
-static int limparBuffer() {
-    int c;
-    int temLixo = 0;
-
-    while ((c = getchar()) != '\n' && c != EOF) {
-        if (c != ' ') {
-            temLixo = 1;
-        }
-    }
-
-    return temLixo;
 }
 
 static int lerInteiro(const char *mensagem) {
@@ -108,19 +51,6 @@ static DataHora lerDataBusca() {
     }
 }
 
-static void exibirMenu() {
-    printf("\n=================================\n");
-    printf("     GERENCIADOR DE TAREFAS      \n");
-    printf("=================================\n");
-    printf("1 - Adicionar tarefa\n");
-    printf("2 - Listar todas as tarefas\n");
-    printf("3 - Buscar por palavra-chave\n");
-    printf("4 - Buscar por data\n");
-    printf("5 - Concluir tarefa\n");
-    printf("6 - Remover tarefa\n");
-    printf("0 - Salvar e sair\n");
-    printf("=================================\n");
-}
 
 int main() {
     int opcao;
@@ -144,21 +74,21 @@ int main() {
                 break;
 
             case 2:
-                listarTarefas();
+                listarTarefas(getInicio());
                 break;
 
             case 3:
-                listarPorPalavraChave();
+                listarPorPalavraChave(getInicio());
                 break;
 
             case 4: {
                 DataHora dataBusca = lerDataBusca();
-                listarPorData(dataBusca);
+                listarPorData(dataBusca, getInicio());
                 break;
             }
 
             case 5:
-                listarTarefas();
+                listarTarefas(getInicio());
                 id = lerInteiro("\nDigite o ID da tarefa para concluir (0 para cancelar): ");
                 if (id > 0) {
                     concluirTarefa(id);
@@ -168,7 +98,7 @@ int main() {
                 break;
 
             case 6:
-                listarTarefas();
+                listarTarefas(getInicio());
                 id = lerInteiro("\nDigite o ID da tarefa para remover (0 para cancelar): ");
                 if (id > 0) {
                     removerNaLista(id);

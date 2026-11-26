@@ -74,7 +74,10 @@ static int horarioNoPassado(int dia, int mes, int ano, int hora, int minuto) {
     return 0;
 }
 
+
+
 // Funções públixas
+
 void setHora(int dia, int mes, int ano, int *hora, int *minuto) {
     int lidos;
     int buffer;
@@ -111,45 +114,7 @@ void setHora(int dia, int mes, int ano, int *hora, int *minuto) {
         
         break;
     }
-}
-
-char setStatus() {
-    char status;
-    int buffer;
-    int tem_caractere_extra;
-    
-    // Inicia um laço que vai se repetir até encontrar um 'return'
-    while (1) {
-        tem_caractere_extra = 0; // Zera o alarme a cada nova tentativa
-        
-        scanf(" %c", &status); // Rejeita qualquer tipo de espaço antes do caracter
-        
-        // Limpa o buffer e verifica por sujeira
-        while ((buffer = getchar()) != '\n' && buffer != EOF) {
-            if (buffer != ' ') { 
-                tem_caractere_extra = 1;
-            }
-        }
-        
-        if (tem_caractere_extra) {
-            printf("Erro: Digite apenas um caractere por vez. Tente Novamente!\n");
-            continue; // Interrompe a volta atual e recomeça o while do zero
-        }
-        
-        // Transforma qualquer char em MAIÚSCULA
-        status = toupper(status);
-        
-        if (status == 'C') {
-            return status;
-            
-        } else if (status == 'P') {
-            return status;
-            
-        } else {
-            printf("Caracter inválido. Tente Novamente!\n");
-        }
-    }
-}
+}   
 
 void setData(int *dia, int *mes, int *ano) {
     int lidos;
@@ -216,4 +181,37 @@ int estaAtrasada(TAREFA *t) {
     }
     
     return 0; // No prazo
+}
+
+int descricaoValida(const char *texto) {
+    for (int i = 0; texto[i] != '\0'; i++) {
+        if (!isspace((unsigned char)texto[i])) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int contemPalavra(const char *texto, const char *chave) {
+    if (*chave == '\0') {
+        return 0;
+    }
+
+    for (; *texto != '\0'; texto++) {
+        const char *t = texto;
+        const char *c = chave;
+
+        while (*t != '\0' && *c != '\0' &&
+               tolower((unsigned char)*t) == tolower((unsigned char)*c)) {
+            t++;
+            c++;
+        }
+
+        // Se chegou ao fim da palavra-chave, encontrou correspondência
+        if (*c == '\0') {
+            return 1;
+        }
+    }
+
+    return 0;
 }
